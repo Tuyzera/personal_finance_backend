@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//criar uma migration yarn prisma migrate dev
+model User{
+  id String @id @default(uuid())
+  name String
+  email String
+  password String
+  avatarUrl String?
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+ //1 usuario pode ter varias contas
+  accounts Account[]
+
+  @@map("users")
+
+}
+
+model Account{
+  id String @id @default(uuid())
+  name String?
+  type String
+  balance Float
+  created_at DateTime @default(now())
+  user_id String
+//1 conta pode ter 1 usuario
+  user User @relation(fields: [user_id], references: [id])
+//1 Conta pode ter varias transaõ
+  transactions Transaction[]
+
+  @@map("accounts")
+
+ 
+}
+
+model Transaction {
+  id String @id @default(uuid())
+  date String
+  description String
+  value Float
+  type String
+  account_id String
+  category_id String
+  account Account @relation(fields: [account_id], references: [id])
+  categories Category @relation(fields: [category_id], references: [id])
+  
+  @@map("transactions")
+
+
+  
+
+}
+
+model Category{
+  id String @id @default(uuid())
+  name String
+
+  transactions Transaction[]
+
+
+  @@map("categories")
+}
+
+
